@@ -44,7 +44,7 @@ class Tree {
     }
     if (value < node.data) {
       node.left = this.insertRec(value, node.left);
-    } else if (value > node.data) {
+    } else if (value >= node.data) {
       node.right = this.insertRec(value, node.right);
     }
     return node;
@@ -52,13 +52,13 @@ class Tree {
 
   insert = (value) => this.insertRec(value, this.root);
 
-  searchRec = (value, node) => {
+  searchRec = (value, node = this.root) => {
     if (!node || node.data === value) return node;
     else if (value < node.data) return this.searchRec(value, node.left);
     else if (value > node.data) return this.searchRec(value, node.right);
   }
   
-  search = (value) => this.searchRec(value, this.root);
+  //search = (value) => this.searchRec(value, this.root);
 
   deleteRec = (value, node) => {
     if (!node) return null;
@@ -129,7 +129,7 @@ class Tree {
   }
 
   traverse = (
-    order,
+    order = 'levelRec',
     cb = (node, accu) => {
       accu = [...accu, node.data];
       return accu;
@@ -159,6 +159,47 @@ class Tree {
   return result;
   }
   
+  height = (node) => {
+    if (!node) {
+      console.log('Please enter a valid node');
+      return;
+    }
+    let h = 0;
+    let queue = [{node, h: 0}];
+    while (queue.length) {
+      let lvl = queue.shift();
+      h = lvl.h;
+      if (lvl.node.left) queue.push({node: lvl.node.left, h: h + 1})
+      if (lvl.node.right) queue.push({node: lvl.node.right, h: h + 1})  
+    }
+    return h;
+  }
+
+  depthRec = (targetNode, root = this.root, d = 0) => {
+    if (!root || root === targetNode) return d;
+    if (targetNode.data > root.data) return this.depthRec(targetNode, root.right, d + 1);
+    if (targetNode.data < root.data) return this.depthRec(targetNode, root.left, d + 1);
+  }
+
+  isBalanced = (root) => {
+    let balanceArray = this.levelOrderRec(
+      (node, accu) => {
+        let leftHeight = node.left ? this.height(node.left) : 0;
+        let rightHeight = node.right ? this.height(node.right) : 0;
+        accu.push(leftHeight - rightHeight < 2 && rightHeight - leftHeight < 2)
+        return accu;
+      }, 
+      [], 
+      [this.root]
+    )
+    return balanceArray.every(value => value);
+  }
+
+  rebalance = () => {
+    let arr = bst.traverse();
+    this.buildTree(arr);
+  }
+
 }
 
 const prettyPrint = (node, prefix = '', isLeft = true) => {
@@ -175,12 +216,32 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
   }
 }
 
+const randArray = (n) => {
+  let result = [];
+  for (let i = 0; i < n; i++) {
+    result.push(Math.floor(Math.random() * 100));
+  }
+  return result;
+}
+
 const bst = new Tree();
-let root = bst.buildTree([1, 7, 23, 8, 9, 3, 5, 7, 9, 15, 27, 32, 67, 200, 143, 6345, 324])
-prettyPrint(root);
-/* prettyPrint(bst.insert(10));
-prettyPrint(bst.search(7)); */
-/* console.log(bst.traverse('levelRec')); */
-/* console.log(bst.traverse('preorder'));
-console.log(bst.traverse('inorder')); */
+let array = randArray(50);
+bst.buildTree(array);
+console.log(bst.isBalanced());
+console.log(bst.traverse());
+console.log(bst.traverse('preorder'));
+console.log(bst.traverse('inorder'));
+console.log(bst.traverse('postorder'));
+
+for (let i = 0; i < 100; i++) {
+  bst.insert(Math.floor(Math.random() * 100))
+}
+prettyPrint(bst.root);
+console.log(bst.isBalanced());
+bst.rebalance();
+console.log(bst.isBalanced());
+
+console.log(bst.traverse());
+console.log(bst.traverse('preorder'));
+console.log(bst.traverse('inorder'));
 console.log(bst.traverse('postorder'));

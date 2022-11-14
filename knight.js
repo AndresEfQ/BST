@@ -30,7 +30,8 @@ const knightMoves = (start, end) => {
     [xi, yi] = step.cell;
     moves.forEach((move) => {
       let [xm, ym] = move;
-      if (xi + xm >= 0 && yi + ym >= 0) {
+      if (xi + xm >= 0 && yi + ym >= 0 && 
+          xi + xm < 8 && yi + ym < 8) {
         queue.push({cell: [xi + xm, yi + ym], path: [...step.path, step.cell]})
       }
     })
@@ -42,4 +43,4 @@ const knightMoves = (start, end) => {
   console.log(step.cell);
 }
 
-knightMoves([0,9], [0,0]);
+knightMoves([0,0], [3,4]);
